@@ -1,10 +1,8 @@
 last = a.css('.interactive-listing-container').children.map do |b| 
    meta = {}
-   counter = -1
    metakey = ""
    b.css('.meta').children.map do |m|
      if m.name == "strong"
-       counter = counter + 1
        metakey = m.text
        meta[metakey] = []
      else
@@ -17,17 +15,18 @@ last = a.css('.interactive-listing-container').children.map do |b|
         end
       when "Speakers"
         if m.name == "a"
-          meta[metakey].push("name : #{m.text}")
-          meta[metakey].push("twitter : #{m.attr("href").gsub(/\//, "@")}") 
+          hash = {:name => m.text, :twitter => m.attr("href").gsub(/\//, "@")}
+          meta[metakey].push(hash) 
         end
       else
         meta[metakey].push("#{m.text}")
       end
      end
    end
-   # matrix.each do |m|
-   #   p m
-   # end
+   meta = meta.merge(meta) do|k,ov|
+     ov = ov.join unless ["Time", "Speakers"].include?(k)
+     ov
+   end
    {
      :title => b.css('h3').text,
      :meta => meta
