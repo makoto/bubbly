@@ -1,25 +1,27 @@
 last = a.css('.interactive-listing-container').children.map do |b| 
-   matrix = []
+   meta = {}
    counter = -1
+   metakey = ""
    b.css('.meta').children.map do |m|
      if m.name == "strong"
        counter = counter + 1
-       matrix[counter] = [m.text]
+       metakey = m.text
+       meta[metakey] = []
      else
-      case matrix[counter][0]
+      case metakey
       when "Time"
         if m.css('.value-title')
           m.css('.value-title').each do |n|
-            matrix[counter].push(n.attr("title"))
+            meta[metakey].push(n.attr("title"))
           end
         end
       when "Speakers"
         if m.name == "a"
-          matrix[counter].push("name : #{m.text}")
-          matrix[counter].push("twitter : #{m.attr("href").gsub(/\//, "@")}") 
+          meta[metakey].push("name : #{m.text}")
+          meta[metakey].push("twitter : #{m.attr("href").gsub(/\//, "@")}") 
         end
       else
-        matrix[counter].push("#{m.text}")
+        meta[metakey].push("#{m.text}")
       end
      end
    end
@@ -28,7 +30,7 @@ last = a.css('.interactive-listing-container').children.map do |b|
    # end
    {
      :title => b.css('h3').text,
-     :meta => matrix
+     :meta => meta
    }
 end.reject{|b| b[:title] == ""}.last
 
