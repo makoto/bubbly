@@ -12,4 +12,6 @@ gem install bundler
 Add cron
 * * * * * cd ~/bubbly/twitter/search && ./crawler.rb >> ~/bubbly/twitter/search/log/crawler.log 2>&1
 
-Start up god
+Startup daemon
+
+cd ~/bubbly/twitter/stream && ruby daemon.rb start
