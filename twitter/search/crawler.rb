@@ -10,7 +10,7 @@ class Crawler
   
   def initialize(file_name)
     @url = "http://search.twitter.com/search.json" 
-    @initial_query = "?q=sxsw&rpp=100&page=1"
+    @initial_query = "?q=sxsw&show_user=true&rpp=100&page=1"
     @file_name = file_name
     @data = []
     @last_id = File.exist?(@file_name) ? JSON.parse(`tail -1 #{@file_name}`)["id_str"].to_i : 0
