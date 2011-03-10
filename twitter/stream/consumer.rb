@@ -1,15 +1,16 @@
 !#/usr/bin/ruby
 require "rubygems"
-require "bundler/setup"
 require 'yaml'
 require 'json'
-require 'eventmachine'
-require 'em-http'
+require 'pusher'
+require 'net/http'
 
-# require 'tweetstream'
+
+
 
 ROOT_DIR = File.dirname(__FILE__)
-keyword = ARGV[0]
+# keyword = ARGV[0]
+keyword = "sxsw"
 p ARGV[0]
 config = YAML.load_file(ROOT_DIR + '/config/config.yml')
 p ROOT_DIR
@@ -17,34 +18,54 @@ p ROOT_DIR + '/config/config.yml'
 outfile = (ROOT_DIR + "/data/#{keyword}.txt")
 
 # mwc11
-@f = File.new(outfile, "a") 
+@f = File.new(outfile, "a")
 url = "http://stream.twitter.com/1/statuses/filter.json?track=#{keyword}"
-counter = 0
-EventMachine.run do
- http = EventMachine::HttpRequest.new(url).get :head => { 'Authorization' => [ config[:account], config[:password] ] }
- buffer = ""
- http.stream do |chunk|
-   buffer += chunk
-   while line = buffer.slice!(/.+\r?\n/)
-    # p line
-    counter = counter + 1
-    p counter
-    @f.puts line
-   end
- end
+
+Pusher.app_id = config[:app_id]
+Pusher.key = config[:key]
+Pusher.secret = config[:secret]
+
+# from http://d.hatena.ne.jp/m_seki/?of=10
+class JSONStream
+  def initialize
+    @buf = ''
+  end
+
+  def push(str)
+    @buf << str
+    while (line = @buf[/.+?(\r\n)+/m]) != nil
+      begin
+        @buf.sub!(line,"")
+        line.strip!
+        event = JSON.parse(line)
+        p event
+        Pusher['twitter'].trigger!('created', {:some => event})
+      rescue Exception => e
+        p "ERROR"
+        p e
+        break
+      end
+    end
+  end
 end
 
-@f.puts "begins"
 
-# loop do
-#   sleep 0.1
-#   p "world"
-#   @f.puts Time.now
-#   p @f.class
-# end
 
-# Not working for 1.8.7 and can not use 
-# TweetStream::Client.new(config[:account], config[:password]).track(keyword) do |status|
-#   puts "#{status.text}"
-#   f.puts status.to_json
-# end
+uri = URI.parse(url)
+p uri.request_uri
+http = Net::HTTP.new(uri.host, uri.port)
+
+ # occupy
+ http.start do |https|
+   json = JSONStream.new
+   request = Net::HTTP::Get.new(uri.request_uri)
+   request.basic_auth config[:account], config[:password] 
+   # request.oauth!(https, consumer, access_token)
+   http.request(request) do |response|
+     response.read_body do |chunk|
+       # return unless occupied?
+       json.push(chunk)
+     end
+   end
+ end
+
