@@ -8,24 +8,25 @@ require 'json'
 class Crawler
   attr_accessor :raw_html
   
-  def initialize(option)
+  def initialize(file_name)
     @url = "http://search.twitter.com/search.json" 
     @initial_query = "?q=sxsw&show_user=true&rpp=100&page=1"
-    @option = option
+    @file_name = file_name
     @data = []
-    @last_id =  `tail -1 #{@option[:outfile]}`.chomp.to_i
+    @last_id = File.exist?(@file_name) ? JSON.parse(`tail -1 #{@file_name}`)["id_str"].to_i : 0
   end
   
   def crawl(query = @initial_query)
     response = JSON.parse(fetch(@url + query))
+    
+    # recent first
     @data = @data + response["results"].map do |r|
-      # p r["created_at"]
-      # p "#{r["id_str"].to_i.class} > #{@last_id}"
-      r["id_str"]
-    end.find_all{|r| r.to_i > @last_id} # removing duplicate
+      # r["id_str"]
+      r
+    end.find_all{|r| r["id_str"].to_i > @last_id} # removing duplicate
     oldest_id = response["results"][-1]["id_str"].to_i
     newest_id = response["results"][0]["id_str"].to_i
-    # recent first
+    
     # response.each do |k, v|
     #   p "k: #{k} v : #{v}"
     # end
@@ -38,11 +39,12 @@ class Crawler
   end
   
   def save
-    return false unless @option[:outfile]
     puts "#{Time.now}: saving #{@data.size} tweets"
-    File.open(@option[:outfile], "a") do |f|
+    mode =  File.exist? @file_name ? "a" : "w"
+    File.open(@file_name, "a") do |f|
       @data.reverse.each do |d|
-        f.puts d
+        # puts JSON.generate(d)
+        f.puts JSON.generate(d)
       end
     end
   end
@@ -61,7 +63,7 @@ end
 # do_get(url, query)
 
 if __FILE__ == $0
-  crawler = Crawler.new(:outfile => './data/tweets.txt')
+  crawler = Crawler.new('./data/tweets.txt')
   crawler.crawl
   crawler.save
 end
