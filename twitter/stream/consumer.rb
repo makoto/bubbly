@@ -12,10 +12,10 @@ p ARGV[0]
 config = YAML.load_file(ROOT_DIR + '/config/config.yml')
 p ROOT_DIR
 p ROOT_DIR + '/config/config.yml'
-outfile = (ROOT_DIR + "/data/#{keyword}.txt")
+# outfile = (ROOT_DIR + "/data/#{keyword}.txt")
 
 # mwc11
-@f = File.new(outfile, "a")
+# @f = File.new(outfile, "a")
 url = "http://stream.twitter.com/1/statuses/filter.json?track=#{keyword}"
 
 Pusher.app_id = config[:app_id]
