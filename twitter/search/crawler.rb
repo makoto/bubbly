@@ -1,3 +1,6 @@
+#! /usr/bin/ruby
+
+require 'rubygems'
 require 'open-uri'
 require 'uri'
 require 'json'
