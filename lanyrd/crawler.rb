@@ -21,7 +21,7 @@ url = "http://sxsw.lanyrd.com/?page="
 outdir = "data/"
 (1..34).each do |n|
 outfile =  "#{outdir}sxsw_#{n}.html"
- File.open(outfile, "w") do |f|
+ File.open(outfile, "a") do |f|
    f.puts Crawler.new("#{url}#{n}").crawl
  end
  p "feched #{url}#{n}"
