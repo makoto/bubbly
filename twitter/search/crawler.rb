@@ -7,7 +7,7 @@ class Crawler
   
   def initialize(option)
     @url = "http://search.twitter.com/search.json" 
-    @initial_query = "?q=sxsw&rpp=100&page=1"
+    @initial_query = "?q=sxsw&show_user=true&rpp=100&page=1"
     @option = option
     @data = []
     @last_id =  `tail -1 #{@option[:outfile]}`.chomp.to_i
