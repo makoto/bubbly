@@ -1,6 +1,6 @@
 APP_ROOT = File.join(File.dirname(__FILE__), '../')
-APP_NAME = "test"
-COMMAND  = "ruby #{APP_NAME}.rb mwc11"
+APP_NAME = "sxsw"
+COMMAND  = "ruby consumer.rb"
 
 def apply_defaults(w)
   w.interval = 5.seconds
