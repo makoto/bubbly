@@ -5,9 +5,6 @@ require 'json'
 require 'pusher'
 require 'net/http'
 
-
-
-
 ROOT_DIR = File.dirname(__FILE__)
 # keyword = ARGV[0]
 keyword = "sxsw"
@@ -49,8 +46,6 @@ class JSONStream
   end
 end
 
-
-
 uri = URI.parse(url)
 p uri.request_uri
 http = Net::HTTP.new(uri.host, uri.port)
@@ -60,10 +55,8 @@ http = Net::HTTP.new(uri.host, uri.port)
    json = JSONStream.new
    request = Net::HTTP::Get.new(uri.request_uri)
    request.basic_auth config[:account], config[:password] 
-   # request.oauth!(https, consumer, access_token)
    http.request(request) do |response|
      response.read_body do |chunk|
-       # return unless occupied?
        json.push(chunk)
      end
    end
